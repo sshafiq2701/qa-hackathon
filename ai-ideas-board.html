@@ -90,7 +90,7 @@
   /* ── EDITABLE TABLE ── */
   .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); }
   table { width: 100%; border-collapse: collapse; min-width: 900px; }
-  thead th { background: var(--primary); color: #fff; font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; padding: .75rem 1rem; text-align: left; white-space: nowrap; position: sticky; top: 0; }
+  thead th { background: var(--primary); color: #fff; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; padding: .75rem 1rem; text-align: left; white-space: nowrap; position: sticky; top: 0; }
   thead th:first-child { border-radius: 0; }
   thead th:last-child { border-radius: 0; }
   tbody tr { transition: background .15s; }
@@ -103,14 +103,23 @@
   tbody td textarea,
   tbody td select {
     width: 100%; border: none; background: transparent; color: var(--text); font-family: inherit;
-    font-size: .88rem; padding: .7rem .85rem; outline: none; resize: none; line-height: 1.5;
+    font-size: .95rem; padding: .7rem .85rem; outline: none; resize: vertical; line-height: 1.55;
   }
-  tbody td textarea { min-height: 52px; }
+  tbody td textarea { min-height: 60px; }
+  tbody td textarea.title-cell { min-height: 42px; font-weight: 600; }
   tbody td input:focus,
   tbody td textarea:focus,
   tbody td select:focus { background: rgba(108,60,225,.04); }
   tbody td select { cursor: pointer; padding: .7rem .5rem; -webkit-appearance: auto; }
   tbody td select option { background: var(--input-bg); color: var(--text); }
+
+  /* Formatting toolbar */
+  .fmt-bar { display: none; padding: .25rem .5rem; background: var(--bg); border-bottom: 1px solid var(--border); gap: .2rem; align-items: center; }
+  .fmt-bar.visible { display: flex; }
+  .fmt-btn { background: none; border: 1px solid var(--border); border-radius: 4px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .78rem; font-weight: 700; color: var(--text-muted); font-family: inherit; transition: all .15s; }
+  .fmt-btn:hover { background: rgba(108,60,225,.1); border-color: var(--primary); color: var(--primary); }
+  .fmt-sep { width: 1px; height: 18px; background: var(--border); margin: 0 .2rem; }
+  .fmt-hint { font-size: .68rem; color: var(--text-muted); margin-left: auto; opacity: .7; }
 
   /* Column widths */
   .col-num { width: 44px; text-align: center; }
@@ -338,6 +347,7 @@ const categories = [
   { value: 'Bug Triage', label: 'Bug Triage' },
   { value: 'CI/CD', label: 'CI/CD' },
   { value: 'Test Authoring', label: 'Test Authoring' },
+  { value: 'Test Automation', label: 'Test Automation' },
   { value: 'Environment', label: 'Environment' },
   { value: 'General', label: 'General' },
 ];
@@ -369,7 +379,7 @@ function render() {
     <tr data-id="${r.id}">
       <td class="row-num">${i + 1}</td>
       <td><input type="text" value="${esc(r.name)}" placeholder="Your name" maxlength="40" onchange="updateField(${r.id}, 'name', this.value)"></td>
-      <td><input type="text" value="${esc(r.title)}" placeholder="Idea title" maxlength="80" onchange="updateField(${r.id}, 'title', this.value)"></td>
+      <td><textarea class="title-cell" placeholder="Idea title" maxlength="80" onchange="updateField(${r.id}, 'title', this.value)">${esc(r.title)}</textarea></td>
       <td><textarea placeholder="What could AI/automation do here?" maxlength="300" onchange="updateField(${r.id}, 'desc', this.value)">${esc(r.desc)}</textarea></td>
       <td><textarea placeholder="How is this done today?" maxlength="200" onchange="updateField(${r.id}, 'process', this.value)">${esc(r.process)}</textarea></td>
       <td><select onchange="updateField(${r.id}, 'category', this.value)">${buildSelect(categories, r.category)}</select></td>
@@ -440,6 +450,124 @@ function deleteRow(id) {
   render();
   showToast('Idea removed');
 }
+
+// ── AUTO-GROW TEXTAREAS ──
+document.addEventListener('input', function(e) {
+  if (e.target.tagName === 'TEXTAREA') {
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  }
+});
+
+// ── FORMATTING TOOLBAR ──
+let activeFmtTextarea = null;
+
+function showFmtBar(textarea) {
+  // Remove any existing toolbar
+  hideFmtBar();
+  if (textarea.classList.contains('title-cell')) return; // no toolbar for title
+
+  activeFmtTextarea = textarea;
+  const bar = document.createElement('div');
+  bar.className = 'fmt-bar visible';
+  bar.id = 'fmtBar';
+  bar.innerHTML = `
+    <button class="fmt-btn" onclick="fmtInsert('bullet')" title="Bullet point">&#8226;</button>
+    <button class="fmt-btn" onclick="fmtInsert('number')" title="Numbered list">1.</button>
+    <button class="fmt-btn" onclick="fmtInsert('dash')" title="Dash list">&ndash;</button>
+    <div class="fmt-sep"></div>
+    <button class="fmt-btn" onclick="fmtInsert('arrow')" title="Arrow">&rarr;</button>
+    <button class="fmt-btn" onclick="fmtInsert('check')" title="Checkbox">&#9744;</button>
+    <span class="fmt-hint">Type &bull; or - at line start for bullets</span>
+  `;
+  textarea.parentNode.insertBefore(bar, textarea);
+}
+
+function hideFmtBar() {
+  const old = document.getElementById('fmtBar');
+  if (old) old.remove();
+  activeFmtTextarea = null;
+}
+
+function fmtInsert(type) {
+  const ta = activeFmtTextarea;
+  if (!ta) return;
+  const pos = ta.selectionStart;
+  const val = ta.value;
+  // Find the start of the current line
+  const lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+  let prefix = '';
+  if (type === 'bullet') prefix = '\u2022 ';
+  else if (type === 'dash') prefix = '\u2013 ';
+  else if (type === 'arrow') prefix = '\u2192 ';
+  else if (type === 'check') prefix = '\u2610 ';
+  else if (type === 'number') {
+    // Count existing numbered lines
+    const lines = val.substring(0, lineStart).split('\n');
+    const numLines = lines.filter(l => /^\d+\.\s/.test(l.trim())).length;
+    prefix = (numLines + 1) + '. ';
+  }
+  // If we're at the start of a line or the textarea is empty, just insert
+  const atLineStart = pos === lineStart;
+  let insert = '';
+  if (atLineStart) {
+    insert = prefix;
+  } else {
+    insert = '\n' + prefix;
+  }
+  ta.value = val.substring(0, pos) + insert + val.substring(pos);
+  ta.selectionStart = ta.selectionEnd = pos + insert.length;
+  ta.focus();
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+  ta.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+// Show toolbar on textarea focus, hide on blur
+document.addEventListener('focusin', function(e) {
+  if (e.target.tagName === 'TEXTAREA' && e.target.closest('tbody')) {
+    showFmtBar(e.target);
+  }
+});
+document.addEventListener('focusout', function(e) {
+  if (e.target.tagName === 'TEXTAREA' && e.target.closest('tbody')) {
+    // Delay to allow toolbar button clicks
+    setTimeout(() => {
+      if (!document.activeElement || !document.activeElement.closest('.fmt-bar')) {
+        hideFmtBar();
+      }
+    }, 200);
+  }
+});
+
+// Auto-continue bullets on Enter
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter' || e.target.tagName !== 'TEXTAREA' || !e.target.closest('tbody')) return;
+  const ta = e.target;
+  const pos = ta.selectionStart;
+  const val = ta.value;
+  const lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+  const line = val.substring(lineStart, pos);
+  // Match bullet patterns
+  const match = line.match(/^(\u2022\s|\u2013\s|\u2192\s|\u2610\s|\d+\.\s)/);
+  if (match) {
+    e.preventDefault();
+    let prefix = match[1];
+    // If line is ONLY the prefix (empty bullet), remove it instead
+    if (line.trim() === prefix.trim()) {
+      ta.value = val.substring(0, lineStart) + val.substring(pos);
+      ta.selectionStart = ta.selectionEnd = lineStart;
+    } else {
+      // Auto-increment numbers
+      const numMatch = prefix.match(/^(\d+)\.\s/);
+      if (numMatch) prefix = (parseInt(numMatch[1]) + 1) + '. ';
+      const insert = '\n' + prefix;
+      ta.value = val.substring(0, pos) + insert + val.substring(pos);
+      ta.selectionStart = ta.selectionEnd = pos + insert.length;
+    }
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    ta.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
 
 // ── UTILITIES ──
 function showToast(msg) {
