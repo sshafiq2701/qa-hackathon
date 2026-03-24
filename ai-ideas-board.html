@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Team — AI &amp; Automation Ideas Board</title>
+<style>
+  :root {
+    --primary: #6C3CE1;
+    --primary-light: #7C4DFF;
+    --primary-dark: #4C1D95;
+    --accent: #059669;
+    --accent-dark: #047857;
+    --bg: #F8F9FC;
+    --bg-card: #FFFFFF;
+    --text: #1E1B2E;
+    --text-muted: #64607A;
+    --border: #E2E0EC;
+    --nav-bg: rgba(248,249,252,.88);
+    --nav-bg-mobile: rgba(248,249,252,.97);
+    --hero-grad1: rgba(108,60,225,.08);
+    --hero-grad2: rgba(5,150,105,.05);
+    --grid-stroke: %23E2E0EC;
+    --grid-opacity: .4;
+    --row-hover: #F1F0FB;
+    --input-bg: #FFFFFF;
+  }
+  [data-theme="dark"] {
+    --primary-light: #8B5CF6;
+    --accent: #06D6A0;
+    --accent-dark: #05B384;
+    --bg: #0F0A1A;
+    --bg-card: #1A1128;
+    --text: #E8E0F5;
+    --text-muted: #9B8FBB;
+    --border: #2D1F4E;
+    --nav-bg: rgba(15,10,26,.85);
+    --nav-bg-mobile: rgba(15,10,26,.97);
+    --hero-grad1: rgba(108,60,225,.25);
+    --hero-grad2: rgba(6,214,160,.1);
+    --grid-stroke: %232D1F4E;
+    --grid-opacity: .3;
+    --row-hover: #231740;
+    --input-bg: #1A1128;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* ── NAV ── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 2rem; }
+  nav .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  nav .logo { font-weight: 800; font-size: 1.25rem; color: var(--accent); letter-spacing: -0.5px; }
+  nav .logo span { color: var(--primary-light); }
+  nav ul { list-style: none; display: flex; gap: 1.75rem; align-items: center; }
+  nav a { color: var(--text-muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+  nav a:hover { color: var(--accent); }
+  .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+  @media (max-width: 768px) {
+    .nav-toggle { display: block; }
+    nav ul { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--nav-bg-mobile); flex-direction: column; padding: 1.5rem 2rem; gap: 1rem; border-bottom: 1px solid var(--border); }
+    nav ul.open { display: flex; }
+  }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: border-color .2s, color .2s; flex-shrink: 0; }
+  .theme-toggle:hover { border-color: var(--primary-light); color: var(--text); }
+  .theme-toggle .icon-sun { display: inline; }
+  .theme-toggle .icon-moon { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-moon { display: inline; }
+
+  /* ── HERO ── */
+  .hero { min-height: 38vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem 2.5rem; background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--hero-grad1), transparent), radial-gradient(ellipse 40% 40% at 80% 80%, var(--hero-grad2), transparent), var(--bg); position: relative; overflow: hidden; }
+  .hero-grid { position: absolute; inset: 0; opacity: var(--grid-opacity); pointer-events: none; }
+  .hero-content { position: relative; max-width: 800px; }
+  .badge { display: inline-block; padding: .6rem 1.5rem; border-radius: 999px; background: rgba(108,60,225,.2); border: 1px solid var(--primary); font-size: 1.05rem; font-weight: 600; color: var(--primary-light); margin-bottom: 1.5rem; letter-spacing: 1px; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.25rem; }
+  .hero h1 .highlight { background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 620px; margin: 0 auto; }
+
+  /* ── TABLE SECTION ── */
+  section { padding: 3rem 2rem 5rem; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+  .table-header h2 { font-size: 1.5rem; font-weight: 800; }
+  .idea-count { font-size: .9rem; color: var(--text-muted); }
+  .idea-count strong { color: var(--primary); }
+
+  /* ── EDITABLE TABLE ── */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  thead th { background: var(--primary); color: #fff; font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; padding: .75rem 1rem; text-align: left; white-space: nowrap; position: sticky; top: 0; }
+  thead th:first-child { border-radius: 0; }
+  thead th:last-child { border-radius: 0; }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody td { padding: 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* Editable cells */
+  tbody td input,
+  tbody td textarea,
+  tbody td select {
+    width: 100%; border: none; background: transparent; color: var(--text); font-family: inherit;
+    font-size: .88rem; padding: .7rem .85rem; outline: none; resize: none; line-height: 1.5;
+  }
+  tbody td textarea { min-height: 52px; }
+  tbody td input:focus,
+  tbody td textarea:focus,
+  tbody td select:focus { background: rgba(108,60,225,.04); }
+  tbody td select { cursor: pointer; padding: .7rem .5rem; -webkit-appearance: auto; }
+  tbody td select option { background: var(--input-bg); color: var(--text); }
+
+  /* Column widths */
+  .col-num { width: 44px; text-align: center; }
+  .col-name { width: 120px; }
+  .col-title { width: 200px; }
+  .col-desc { min-width: 250px; }
+  .col-process { min-width: 200px; }
+  .col-category { width: 150px; }
+  .col-effort { width: 110px; }
+  .col-impact { width: 110px; }
+  .col-actions { width: 50px; text-align: center; }
+
+  /* Row number */
+  .row-num { color: var(--text-muted); font-size: .82rem; font-weight: 600; padding: .7rem .5rem; text-align: center; }
+
+  /* New row styling */
+  .new-row td { background: rgba(108,60,225,.03); }
+  .new-row td input,
+  .new-row td textarea,
+  .new-row td select { background: transparent; }
+  .new-row td input::placeholder,
+  .new-row td textarea::placeholder { color: var(--text-muted); opacity: .6; }
+
+  /* Action buttons */
+  .row-actions { display: flex; gap: .3rem; justify-content: center; padding: .7rem .4rem; }
+  .btn-icon { background: none; border: 1px solid var(--border); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .8rem; transition: all .2s; color: var(--text-muted); }
+  .btn-icon:hover { border-color: var(--primary-light); color: var(--primary); }
+  .btn-icon.delete:hover { border-color: #e55; color: #c33; background: #fee; }
+
+  /* Add row button */
+  .add-row-bar { padding: .75rem 1rem; border-top: 1px solid var(--border); }
+  .btn-add { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.25rem; border-radius: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); font-size: .88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
+  .btn-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(108,60,225,.04); }
+
+  /* ── USER BAR ── */
+  .user-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 150; background: var(--nav-bg); backdrop-filter: blur(16px); border-top: 1px solid var(--border); padding: .6rem 2rem; display: flex; align-items: center; justify-content: center; gap: .75rem; }
+  .user-bar-inner { display: flex; align-items: center; gap: .75rem; max-width: 600px; width: 100%; }
+  .user-bar label { font-size: .85rem; font-weight: 600; white-space: nowrap; color: var(--text); }
+  .user-bar input { flex: 1; padding: .45rem .75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: .9rem; font-family: inherit; }
+  .user-bar input:focus { outline: none; border-color: var(--primary-light); }
+  .user-bar button { padding: .45rem 1rem; border-radius: 8px; border: none; background: var(--primary); color: #fff; font-size: .85rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .user-bar button:hover { opacity: .9; }
+  .user-greeting { font-size: .85rem; color: var(--text-muted); display: flex; align-items: center; gap: .5rem; }
+  .user-greeting strong { color: var(--accent); }
+  .user-greeting .change-name { background: none; border: none; color: var(--text-muted); font-size: .78rem; cursor: pointer; text-decoration: underline; font-family: inherit; padding: 0; }
+  .user-greeting .change-name:hover { color: var(--primary); }
+
+  /* ── FOOTER ── */
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-muted); font-size: .85rem; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 3.5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--primary-dark); color: #fff; padding: .85rem 2rem; border-radius: 12px; font-weight: 600; z-index: 1000; transition: transform .4s; pointer-events: none; font-size: .9rem; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── SCROLL ANIMATION ── */
+  .fade-in { opacity: 0; transform: translateY(30px); transition: opacity .6s, transform .6s; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo"><span>QA</span>Quest</div>
+    <button class="nav-toggle" onclick="document.querySelector('nav ul').classList.toggle('open')">&#9776;</button>
+    <ul>
+      <li><a href="#board">Ideas Board</a></li>
+      <li><a href="qa-hackathon.html">Hackathon Site</a></li>
+      <li><button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode"><span class="icon-sun">&#9788;</span><span class="icon-moon">&#9790;</span></button></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid" id="heroGrid"></div>
+  <div class="hero-content">
+    <div class="badge">QA TEAM &bull; AI &amp; AUTOMATION</div>
+    <h1>Where Should We Use <span class="highlight">AI?</span></h1>
+    <p>Add your ideas below — what manual or repetitive QA tasks could AI or automation improve? Just click a cell and start typing.</p>
+  </div>
+</section>
+
+<!-- IDEAS TABLE -->
+<section id="board">
+  <div class="container fade-in">
+    <div class="table-header">
+      <h2>AI &amp; Automation Ideas</h2>
+      <span class="idea-count" id="ideaCount"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table id="ideasTable">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-name">Your Name</th>
+            <th class="col-title">Idea Title</th>
+            <th class="col-desc">Description</th>
+            <th class="col-process">Current Manual Process</th>
+            <th class="col-category">Category</th>
+            <th class="col-effort">Effort</th>
+            <th class="col-impact">Impact</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="add-row-bar">
+        <button class="btn-add" onclick="addRow()">+ Add Idea</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p><strong style="color:var(--accent);">QA</strong><strong>Quest</strong> AI Ideas Board &bull; QA Team &bull; Think. Propose. Automate.</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<!-- USER BAR -->
+<div class="user-bar" id="userBar">
+  <div class="user-bar-inner" id="userBarInner">
+    <label>Your Name:</label>
+    <input type="text" id="userNameInput" placeholder="Enter your name to get started" maxlength="40">
+    <button onclick="setUserName()">Save</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const API_URL = ''; // <-- paste your deployed Apps Script URL (same one as the hackathon site)
+
+// ── USER NAME (remember-me, shared with hackathon site) ──
+function getCurrentUser() { return localStorage.getItem('qa_hackathon_user') || ''; }
+function setUserName() {
+  const input = document.getElementById('userNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  localStorage.setItem('qa_hackathon_user', name);
+  renderUserBar();
+  showToast(`Welcome, ${name}!`);
+}
+function changeName() {
+  localStorage.removeItem('qa_hackathon_user');
+  renderUserBar();
+  document.getElementById('userNameInput').focus();
+}
+function renderUserBar() {
+  const name = getCurrentUser();
+  const inner = document.getElementById('userBarInner');
+  if (name) {
+    inner.innerHTML = `<span class="user-greeting">Signed in as <strong>${name}</strong> <button class="change-name" onclick="changeName()">change</button></span>`;
+  } else {
+    inner.innerHTML = `<label>Your Name:</label><input type="text" id="userNameInput" placeholder="Enter your name to get started" maxlength="40" onkeydown="if(event.key==='Enter')setUserName()"><button onclick="setUserName()">Save</button>`;
+  }
+}
+renderUserBar();
+
+// ── PERSISTENCE ──
+async function dbSave(type, data) {
+  if (!API_URL) return;
+  try {
+    await fetch(API_URL, { method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ type, ...data })
+    });
+  } catch(e) { console.warn('Save failed:', e); }
+}
+async function dbLoad() {
+  if (!API_URL) return null;
+  try {
+    const r = await fetch(API_URL);
+    return await r.json();
+  } catch(e) { console.warn('Load failed:', e); return null; }
+}
+
+// ── THEME ──
+function toggleTheme() {
+  const d = document.documentElement;
+  d.setAttribute('data-theme', d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  updateGrid();
+}
+function updateGrid() {
+  const s = getComputedStyle(document.documentElement);
+  document.getElementById('heroGrid').style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40' fill='none' stroke='${s.getPropertyValue('--grid-stroke').trim()}' stroke-width='.5'/%3E%3C/svg%3E")`;
+}
+updateGrid();
+
+// ── STATE ──
+const rows = [];
+let nextId = 1;
+
+const categories = [
+  { value: '', label: 'Select...' },
+  { value: 'Regression Testing', label: 'Regression Testing' },
+  { value: 'Test Data', label: 'Test Data' },
+  { value: 'Reporting', label: 'Reporting' },
+  { value: 'Bug Triage', label: 'Bug Triage' },
+  { value: 'CI/CD', label: 'CI/CD' },
+  { value: 'Test Authoring', label: 'Test Authoring' },
+  { value: 'Environment', label: 'Environment' },
+  { value: 'General', label: 'General' },
+];
+
+const effortOptions = [
+  { value: '', label: 'Select...' },
+  { value: 'Low', label: 'Low (days)' },
+  { value: 'Medium', label: 'Medium (weeks)' },
+  { value: 'High', label: 'High (months)' },
+];
+
+const impactOptions = [
+  { value: '', label: 'Select...' },
+  { value: 'Low', label: 'Low' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'High', label: 'High' },
+];
+
+function buildSelect(options, selected) {
+  return options.map(o =>
+    `<option value="${o.value}"${o.value === selected ? ' selected' : ''}>${o.label}</option>`
+  ).join('');
+}
+
+// ── RENDER ──
+function render() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr data-id="${r.id}">
+      <td class="row-num">${i + 1}</td>
+      <td><input type="text" value="${esc(r.name)}" placeholder="Your name" maxlength="40" onchange="updateField(${r.id}, 'name', this.value)"></td>
+      <td><input type="text" value="${esc(r.title)}" placeholder="Idea title" maxlength="80" onchange="updateField(${r.id}, 'title', this.value)"></td>
+      <td><textarea placeholder="What could AI/automation do here?" maxlength="300" onchange="updateField(${r.id}, 'desc', this.value)">${esc(r.desc)}</textarea></td>
+      <td><textarea placeholder="How is this done today?" maxlength="200" onchange="updateField(${r.id}, 'process', this.value)">${esc(r.process)}</textarea></td>
+      <td><select onchange="updateField(${r.id}, 'category', this.value)">${buildSelect(categories, r.category)}</select></td>
+      <td><select onchange="updateField(${r.id}, 'effort', this.value)">${buildSelect(effortOptions, r.effort)}</select></td>
+      <td><select onchange="updateField(${r.id}, 'impact', this.value)">${buildSelect(impactOptions, r.impact)}</select></td>
+      <td><div class="row-actions"><button class="btn-icon delete" onclick="deleteRow(${r.id})" title="Remove">&#10005;</button></div></td>
+    </tr>
+  `).join('');
+  document.getElementById('ideaCount').innerHTML = rows.length
+    ? `<strong>${rows.length}</strong> idea${rows.length !== 1 ? 's' : ''} submitted`
+    : '';
+}
+
+function esc(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── ACTIONS ──
+function addRow(data) {
+  const row = {
+    id: nextId++,
+    name: data?.name || getCurrentUser(),
+    title: data?.title || '',
+    desc: data?.desc || '',
+    process: data?.process || '',
+    category: data?.category || '',
+    effort: data?.effort || '',
+    impact: data?.impact || '',
+  };
+  rows.push(row);
+  render();
+  // Focus the name field of the new row
+  const lastRow = document.querySelector(`tr[data-id="${row.id}"] input`);
+  if (lastRow) lastRow.focus();
+}
+
+function updateField(id, field, value) {
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+  row[field] = value;
+  // Auto-save when a row has at least a name and title
+  if (row.name && row.title) {
+    saveRow(row);
+  }
+}
+
+let saveTimers = {};
+function saveRow(row) {
+  clearTimeout(saveTimers[row.id]);
+  saveTimers[row.id] = setTimeout(() => {
+    dbSave('aiIdea', {
+      title: row.title, desc: row.desc, process: row.process,
+      category: row.category, effort: row.effort, impact: row.impact,
+      author: row.name
+    });
+    showToast('Saved!');
+  }, 800);
+}
+
+function deleteRow(id) {
+  const row = rows.find(r => r.id === id);
+  if (!row) return;
+  const label = row.title || 'this row';
+  if (!confirm(`Remove "${label}"?`)) return;
+  const idx = rows.findIndex(r => r.id === id);
+  if (idx >= 0) rows.splice(idx, 1);
+  if (row.title) dbSave('aiIdeaDelete', { title: row.title });
+  render();
+  showToast('Idea removed');
+}
+
+// ── UTILITIES ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── INIT ──
+async function init() {
+  const data = await dbLoad();
+  if (data && data.aiIdeas) {
+    data.aiIdeas.forEach(idea => {
+      rows.push({
+        id: nextId++,
+        name: idea.author || '',
+        title: idea.title || '',
+        desc: idea.desc || '',
+        process: idea.process || '',
+        category: idea.category || '',
+        effort: idea.effort || '',
+        impact: idea.impact || '',
+      });
+    });
+  }
+  render();
+}
+init();
+
+// ── SCROLL ANIMATIONS ──
+const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

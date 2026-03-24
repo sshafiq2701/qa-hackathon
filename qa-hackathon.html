@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Quest Hackathon 2026</title>
+<style>
+  :root {
+    --primary: #6C3CE1;
+    --primary-light: #7C4DFF;
+    --primary-dark: #4C1D95;
+    --accent: #059669;
+    --accent-dark: #047857;
+    --bg: #F8F9FC;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F1F0FB;
+    --text: #1E1B2E;
+    --text-muted: #64607A;
+    --border: #E2E0EC;
+    --beginner: #059669;
+    --intermediate: #D97706;
+    --advanced: #DC2626;
+    --nav-bg: rgba(248,249,252,.88);
+    --nav-bg-mobile: rgba(248,249,252,.97);
+    --hero-grad1: rgba(108,60,225,.08);
+    --hero-grad2: rgba(5,150,105,.05);
+    --grid-stroke: %23E2E0EC;
+    --grid-opacity: .4;
+  }
+  [data-theme="dark"] {
+    --primary-light: #8B5CF6;
+    --accent: #06D6A0;
+    --accent-dark: #05B384;
+    --bg: #0F0A1A;
+    --bg-card: #1A1128;
+    --bg-card-hover: #231740;
+    --text: #E8E0F5;
+    --text-muted: #9B8FBB;
+    --border: #2D1F4E;
+    --beginner: #06D6A0;
+    --intermediate: #F59E0B;
+    --advanced: #EF4444;
+    --nav-bg: rgba(15,10,26,.85);
+    --nav-bg-mobile: rgba(15,10,26,.97);
+    --hero-grad1: rgba(108,60,225,.25);
+    --hero-grad2: rgba(6,214,160,.1);
+    --grid-stroke: %232D1F4E;
+    --grid-opacity: .3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  /* ── NAV ── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 2rem; }
+  nav .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  nav .logo { font-weight: 800; font-size: 1.25rem; color: var(--accent); letter-spacing: -0.5px; }
+  nav .logo span { color: var(--primary-light); }
+  nav ul { list-style: none; display: flex; gap: 1.75rem; }
+  nav a { color: var(--text-muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+  nav a:hover { color: var(--accent); }
+  .nav-toggle { display: none; background: none; border: none; color: var(--text); font-size: 1.5rem; cursor: pointer; }
+  @media (max-width: 768px) {
+    .nav-toggle { display: block; }
+    nav ul { display: none; position: absolute; top: 64px; left: 0; right: 0; background: var(--nav-bg-mobile); flex-direction: column; padding: 1.5rem 2rem; gap: 1rem; border-bottom: 1px solid var(--border); }
+    nav ul.open { display: flex; }
+  }
+
+  /* ── HERO ── */
+  .hero { min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem 4rem; background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--hero-grad1), transparent), radial-gradient(ellipse 40% 40% at 80% 80%, var(--hero-grad2), transparent), var(--bg); position: relative; overflow: hidden; }
+  .hero-grid { position: absolute; inset: 0; opacity: var(--grid-opacity); pointer-events: none; }
+  .hero-content { position: relative; max-width: 800px; }
+  .badge { display: inline-block; padding: .6rem 1.5rem; border-radius: 999px; background: rgba(108,60,225,.2); border: 1px solid var(--primary); font-size: 1.05rem; font-weight: 600; color: var(--primary-light); margin-bottom: 1.5rem; letter-spacing: 1px; }
+  .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.25rem; }
+  .hero h1 .highlight { background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 620px; margin: 0 auto 0; }
+
+  .btn { display: inline-flex; align-items: center; gap: .5rem; padding: .85rem 2rem; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 1rem; border: none; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; box-shadow: 0 4px 24px rgba(108,60,225,.35); }
+  .btn-primary:hover { box-shadow: 0 8px 32px rgba(108,60,225,.5); }
+  .btn-accent { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: #fff; box-shadow: 0 4px 24px rgba(5,150,105,.25); }
+  .btn-accent:hover { box-shadow: 0 8px 32px rgba(5,150,105,.4); }
+
+  /* ── SECTIONS ── */
+  section { padding: 5rem 2rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-label { display: inline-block; font-size: .8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: .75rem; }
+  .section-title { font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem; }
+  .section-subtitle { color: var(--text-muted); font-size: 1.05rem; max-width: 620px; margin-bottom: 3rem; }
+
+  /* ── THEME TOGGLE ── */
+  .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); transition: border-color .2s, color .2s; flex-shrink: 0; }
+  .theme-toggle:hover { border-color: var(--primary-light); color: var(--text); }
+  .theme-toggle .icon-sun { display: inline; }
+  .theme-toggle .icon-moon { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+  [data-theme="dark"] .theme-toggle .icon-moon { display: inline; }
+
+  /* ── LEVEL TABS ── */
+  .level-tabs { display: flex; gap: .75rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .level-tab { padding: .6rem 1.5rem; border-radius: 10px; border: 2px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: .95rem; font-weight: 600; font-family: inherit; transition: all .2s; }
+  .level-tab:hover { border-color: var(--primary-light); color: var(--text); }
+  .level-tab.active-all { background: rgba(108,60,225,.12); border-color: var(--primary); color: var(--primary); }
+  .level-tab.active-beginner { background: rgba(6,214,160,.15); border-color: var(--beginner); color: var(--beginner); }
+  .level-tab.active-intermediate { background: rgba(245,158,11,.15); border-color: var(--intermediate); color: var(--intermediate); }
+  .level-tab.active-advanced { background: rgba(239,68,68,.15); border-color: var(--advanced); color: var(--advanced); }
+
+  .level-badge { display: inline-block; padding: .15rem .6rem; border-radius: 6px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .level-badge.beginner { background: rgba(6,214,160,.15); color: var(--beginner); }
+  .level-badge.intermediate { background: rgba(245,158,11,.15); color: var(--intermediate); }
+  .level-badge.advanced { background: rgba(239,68,68,.15); color: var(--advanced); }
+
+  /* ── IDEA CARDS ── */
+  .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); gap: 1.25rem; }
+  .idea-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; transition: border-color .2s, transform .2s, background .2s; }
+  .idea-card:hover { border-color: var(--primary-light); transform: translateY(-3px); }
+  .idea-card.idea-claimed { background: #EBF5FF; border-color: #B8D8F8; }
+  [data-theme="dark"] .idea-card.idea-claimed { background: #162033; border-color: #2A4A6B; }
+  .idea-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: .75rem; gap: .75rem; }
+  .idea-category { font-size: .72rem; padding: .2rem .6rem; border-radius: 6px; font-weight: 600; white-space: nowrap; }
+  .idea-category.work { background: rgba(108,60,225,.2); color: var(--primary-light); }
+  .idea-category.personal { background: rgba(6,214,160,.15); color: var(--accent); }
+  .idea-card h3 { font-size: 1.1rem; margin-bottom: .4rem; }
+  .idea-card p { color: var(--text-muted); font-size: .88rem; margin-bottom: .75rem; }
+  .idea-tags { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .idea-tag { font-size: .72rem; padding: .15rem .5rem; border-radius: 4px; background: rgba(139,92,246,.1); color: var(--primary-light); border: 1px solid rgba(139,92,246,.2); }
+  .idea-effort { display: inline-flex; align-items: center; gap: .3rem; font-size: .78rem; color: var(--text-muted); margin-top: .5rem; }
+  .idea-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: .75rem; border-top: 1px solid var(--border); }
+  .claim-btn { padding: .45rem 1rem; border-radius: 8px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: .85rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; display: inline-flex; align-items: center; gap: .35rem; }
+  .claim-btn:hover { background: var(--primary); color: #fff; }
+  .claim-btn.claimed { background: var(--accent); border-color: var(--accent); color: #fff; cursor: default; }
+  .claim-btn.claimed:hover { background: var(--accent); }
+  .claimed-by { font-size: .78rem; color: var(--accent); font-weight: 600; display: inline-flex; align-items: center; gap: .3rem; }
+  .unclaim-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: .75rem; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all .2s; padding: 0; line-height: 1; font-family: inherit; }
+  .unclaim-btn:hover { background: #fee; border-color: #e55; color: #c33; }
+
+  /* ── RULES ── */
+  .rules-list { display: grid; gap: 1rem; max-width: 700px; }
+  .rule-item { display: flex; gap: 1rem; align-items: flex-start; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; }
+  .rule-num { flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px; background: rgba(108,60,225,.2); color: var(--primary-light); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .9rem; }
+  .rule-item p { color: var(--text-muted); font-size: .95rem; }
+
+  /* ── SUBMISSIONS ── */
+  #submissions { background: var(--bg); }
+  .form-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  .form-group label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .4rem; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: .75rem 1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .95rem; font-family: inherit; transition: border-color .2s; }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary-light); }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .form-group select option { background: var(--bg); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+  .char-count { font-size: .75rem; color: var(--text-muted); text-align: right; margin-top: .25rem; }
+
+  /* ── ROSTER ── */
+  .roster-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .roster-table thead th { background: var(--primary); color: #fff; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; padding: .75rem 1rem; text-align: left; }
+  .roster-table tbody tr { transition: background .15s; }
+  .roster-table tbody tr:hover { background: var(--bg); }
+  .roster-table tbody td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); font-size: .88rem; color: var(--text); }
+  .roster-table tbody tr:last-child td { border-bottom: none; }
+  .roster-table .roster-num { color: var(--text-muted); font-size: .8rem; width: 40px; }
+  .roster-table .roster-project { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .roster-table .roster-date { color: var(--text-muted); font-size: .82rem; white-space: nowrap; }
+  .roster-summary { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .roster-stat { font-size: .85rem; color: var(--text-muted); }
+  .roster-stat strong { color: var(--text); }
+  @media(max-width:600px) {
+    .roster-table { font-size: .82rem; }
+    .roster-table thead th, .roster-table tbody td { padding: .5rem .6rem; }
+    .roster-table .roster-project { max-width: 140px; }
+  }
+
+  /* ── USER BAR ── */
+  .user-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 150; background: var(--nav-bg); backdrop-filter: blur(16px); border-top: 1px solid var(--border); padding: .6rem 2rem; display: flex; align-items: center; justify-content: center; gap: .75rem; }
+  .user-bar.hidden { display: none; }
+  .user-bar-inner { display: flex; align-items: center; gap: .75rem; max-width: 600px; width: 100%; }
+  .user-bar label { font-size: .85rem; font-weight: 600; white-space: nowrap; color: var(--text); }
+  .user-bar input { flex: 1; padding: .45rem .75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: .9rem; font-family: inherit; }
+  .user-bar input:focus { outline: none; border-color: var(--primary-light); }
+  .user-bar button { padding: .45rem 1rem; border-radius: 8px; border: none; background: var(--primary); color: #fff; font-size: .85rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .user-bar button:hover { opacity: .9; }
+  .user-greeting { font-size: .85rem; color: var(--text-muted); display: flex; align-items: center; gap: .5rem; }
+  .user-greeting strong { color: var(--accent); }
+  .user-greeting .change-name { background: none; border: none; color: var(--text-muted); font-size: .78rem; cursor: pointer; text-decoration: underline; font-family: inherit; padding: 0; }
+  .user-greeting .change-name:hover { color: var(--primary); }
+
+  /* ── FOOTER ── */
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-muted); font-size: .85rem; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 4rem; right: 2rem; z-index: 200; background: var(--accent); color: var(--bg); padding: 1rem 1.5rem; border-radius: 12px; font-weight: 600; font-size: .95rem; transform: translateY(120%); transition: transform .35s ease; box-shadow: 0 8px 32px rgba(6,214,160,.3); }
+  .toast.show { transform: translateY(0); }
+
+  /* ── ANIMATIONS ── */
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo"><span>QA</span>Quest</div>
+    <button class="nav-toggle" onclick="document.querySelector('nav ul').classList.toggle('open')">&#9776;</button>
+    <ul>
+      <li><a href="#ideas">Work Ideas</a></li>
+      <li><a href="#personal-ideas">Personal Ideas</a></li>
+      <li><a href="#submissions">Bring Your Own</a></li>
+      <li><a href="#roster">Roster</a></li>
+      <li><a href="ai-ideas-board.html">AI Ideas</a></li>
+      <li><button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode"><span class="icon-sun">&#9788;</span><span class="icon-moon">&#9790;</span></button></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid" id="heroGrid"></div>
+  <div class="hero-content">
+    <div class="badge">QA TEAM &bull; Claude HACKATHON 2026</div>
+    <h1>Learn. Build. <span class="highlight">Grow Together.</span></h1>
+    <p>A collaborative hackathon for every skill level on the QA team. Pick a project that excites you &mdash; for work or just for fun &mdash; and spend 48 hours learning, building, and sharing with your teammates.</p>
+  </div>
+</section>
+
+<!-- WORK IDEAS -->
+<section id="ideas" style="background:var(--bg-card);">
+  <div class="container fade-in">
+    <div class="section-label">&#128188; Work Ideas</div>
+    <h2 class="section-title">Build Something for the Team</h2>
+    <p class="section-subtitle">Tools, dashboards, and automations that improve our QA workflows. Pick one or bring your own! <span id="workCount" style="font-weight:600;color:var(--primary);"></span></p>
+
+    <div class="level-tabs" id="workTabs">
+      <button class="level-tab active-all" onclick="filterSection('work','all',this)">All Levels</button>
+      <button class="level-tab" onclick="filterSection('work','beginner',this)">&#127793; Beginner</button>
+      <button class="level-tab" onclick="filterSection('work','intermediate',this)">&#9889; Intermediate</button>
+      <button class="level-tab" onclick="filterSection('work','advanced',this)">&#128640; Advanced</button>
+    </div>
+    <div class="ideas-grid" id="workGrid"></div>
+  </div>
+</section>
+
+<!-- PERSONAL IDEAS -->
+<section id="personal-ideas">
+  <div class="container fade-in">
+    <div class="section-label">&#127968; Personal Ideas</div>
+    <h2 class="section-title">Build Something for You</h2>
+    <p class="section-subtitle">Passion projects, side apps, and fun experiments. Use the hackathon to learn something new! <span id="personalCount" style="font-weight:600;color:var(--primary);"></span></p>
+
+    <div class="level-tabs" id="personalTabs">
+      <button class="level-tab active-all" onclick="filterSection('personal','all',this)">All Levels</button>
+      <button class="level-tab" onclick="filterSection('personal','beginner',this)">&#127793; Beginner</button>
+      <button class="level-tab" onclick="filterSection('personal','intermediate',this)">&#9889; Intermediate</button>
+      <button class="level-tab" onclick="filterSection('personal','advanced',this)">&#128640; Advanced</button>
+    </div>
+    <div class="ideas-grid" id="personalGrid"></div>
+  </div>
+</section>
+
+<!-- GUIDELINES -->
+<section id="guidelines" style="background:var(--bg-card);">
+  <div class="container fade-in">
+    <div class="section-label">Guidelines</div>
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Simple guidelines to keep things smooth and fun.</p>
+    <div class="rules-list">
+      <div class="rule-item">
+        <div class="rule-num">1</div>
+        <p><strong>Choose Your Level:</strong> Pick Beginner, Intermediate, or Advanced. No pressure &mdash; choose what feels right. You can switch anytime.</p>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">2</div>
+        <p><strong>Pick Any Project:</strong> Choose from our idea list, adapt one, or bring your own. It can be work-related or personal &mdash; both are great.</p>
+      </div>
+      <div class="rule-item">
+        <div class="rule-num">3</div>
+        <p><strong>Be Kind:</strong> Help each other. Celebrate effort. This is a learning space for everyone.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRING YOUR OWN -->
+<section id="submissions">
+  <div class="container fade-in">
+    <div class="section-label">Bring Your Own</div>
+    <h2 class="section-title">Bring Your Own Project</h2>
+    <p class="section-subtitle">Have your own idea? Add it here and claim it right away. Your project will appear in the Work or Personal section above.</p>
+    <div class="form-card" style="max-width:600px;">
+      <form id="byopForm" onsubmit="handleBYOP(event)">
+        <div class="form-group">
+          <label>Project Title *</label>
+          <input type="text" id="byopName" placeholder="e.g., Automated Accessibility Checker" required maxlength="60">
+        </div>
+        <div class="form-group">
+          <label>Short Description *</label>
+          <textarea id="byopDesc" placeholder="What will it do? What problem does it solve?" required maxlength="200" rows="3" oninput="updateCharCount(this, 'byopCount')"></textarea>
+          <div class="char-count"><span id="byopCount">0</span>/200</div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Difficulty Level *</label>
+            <select id="byopLevel" required>
+              <option value="">Select level...</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="byopCategory" required>
+              <option value="">Work or Personal...</option>
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="byopAuthor" placeholder="e.g., Shyreen" required maxlength="40">
+        </div>
+        <button type="submit" class="btn btn-accent" style="width:100%;justify-content:center;">Add &amp; Claim Project &#128640;</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- SIGN-UP ROSTER -->
+<section id="roster" style="background:var(--bg-card);">
+  <div class="container fade-in">
+    <div class="section-label">Roster</div>
+    <h2 class="section-title">Sign-Up Roster</h2>
+    <p class="section-subtitle">Automatically updated as people claim projects.</p>
+
+    <div id="rosterCount" style="color:var(--text-muted);font-size:.9rem;margin-bottom:1rem;"></div>
+    <div id="rosterGrid" style="overflow-x:auto;">
+      <p style="color:var(--text-muted);text-align:center;padding:2rem 0;">No sign-ups yet. Claim a project to get started!</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p><strong style="color:var(--accent);">QA</strong><strong>Quest</strong> Hackathon 2026 &bull; QA Team &bull; Learn. Build. Grow.</p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<!-- USER BAR -->
+<div class="user-bar" id="userBar">
+  <div class="user-bar-inner" id="userBarInner">
+    <label>Your Name:</label>
+    <input type="text" id="userNameInput" placeholder="Enter your name to get started" maxlength="40">
+    <button onclick="setUserName()">Save</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// CONFIGURATION — Paste your Google Apps Script URL here
+// See SETUP-GUIDE.md for instructions
+// ══════════════════════════════════════════════════
+const API_URL = ''; // <-- paste your deployed Apps Script URL
+
+// ── USER NAME (remember-me) ──
+function getCurrentUser() { return localStorage.getItem('qa_hackathon_user') || ''; }
+function setUserName() {
+  const input = document.getElementById('userNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  localStorage.setItem('qa_hackathon_user', name);
+  renderUserBar();
+  showToast(`Welcome, ${name}!`);
+}
+function changeName() {
+  localStorage.removeItem('qa_hackathon_user');
+  renderUserBar();
+  document.getElementById('userNameInput').focus();
+}
+function renderUserBar() {
+  const name = getCurrentUser();
+  const inner = document.getElementById('userBarInner');
+  if (name) {
+    inner.innerHTML = `<span class="user-greeting">Signed in as <strong>${name}</strong> <button class="change-name" onclick="changeName()">change</button></span>`;
+  } else {
+    inner.innerHTML = `<label>Your Name:</label><input type="text" id="userNameInput" placeholder="Enter your name to get started" maxlength="40" onkeydown="if(event.key==='Enter')setUserName()"><button onclick="setUserName()">Save</button>`;
+  }
+}
+renderUserBar();
+
+// ── THEME TOGGLE ──
+function updateGrid() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const stroke = isDark ? '%232D1F4E' : '%23E2E0EC';
+  const grid = document.getElementById('heroGrid');
+  if (grid) grid.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30h60M30 0v60' stroke='${stroke}' stroke-width='.5' fill='none'/%3E%3C/svg%3E")`;
+}
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  updateGrid();
+}
+updateGrid();
+
+// ── PERSISTENCE LAYER ──
+// Uses Google Apps Script as a free backend. Falls back to in-memory if no API_URL set.
+async function dbSave(type, data) {
+  if (!API_URL) return;
+  try {
+    await fetch(API_URL, { method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ type, ...data })
+    });
+  } catch(e) { console.warn('Save failed:', e); }
+}
+async function dbLoad() {
+  if (!API_URL) return null;
+  try {
+    const r = await fetch(API_URL);
+    return await r.json();
+  } catch(e) { console.warn('Load failed:', e); return null; }
+}
+
+// ── APP IDEAS DATA ──
+const appIdeas = [
+  // BEGINNER — WORK
+  { name: 'Test Case Tracker Spreadsheet', level: 'beginner', category: 'work', desc: 'Build a Google Sheets or Excel tracker that logs test cases, pass/fail status, and generates summary stats automatically.', tags: ['Google Sheets', 'Formulas'], effort: '4-6 hours' },
+  { name: 'Bug Report Template Generator', level: 'beginner', category: 'work', desc: 'A simple web form that helps anyone file structured, consistent bug reports with all the right fields pre-filled.', tags: ['HTML', 'CSS', 'Forms'], effort: '3-5 hours' },
+  { name: 'QA Daily Standup Bot', level: 'beginner', category: 'work', desc: 'A Slack bot (using no-code tools like Zapier) that sends daily prompts asking the team what they tested and any blockers.', tags: ['Slack', 'Zapier', 'No-Code'], effort: '3-4 hours' },
+  { name: 'Test Environment Status Page', level: 'beginner', category: 'work', desc: 'A simple dashboard showing which test environments are up, down, or in use. Manual updates via a form or spreadsheet.', tags: ['HTML', 'CSS', 'Google Sheets'], effort: '4-6 hours' },
+  { name: 'Row Count Validator', level: 'beginner', category: 'work', desc: 'A spreadsheet or simple script that compares row counts between source tables and warehouse tables after each ETL run, flagging mismatches.', tags: ['SQL', 'Google Sheets', 'Cron'], effort: '3-5 hours' },
+  { name: 'Null Check Reporter', level: 'beginner', category: 'work', desc: 'Run SQL queries against key warehouse columns to detect unexpected NULLs, then email or Slack a daily summary of any violations.', tags: ['SQL', 'Slack Webhooks', 'Cron'], effort: '4-6 hours' },
+  { name: 'Regression Test Checklist Builder', level: 'beginner', category: 'work', desc: 'A web form where testers select a feature area and get a pre-built regression checklist they can print or copy into a ticket.', tags: ['HTML', 'JavaScript', 'JSON'], effort: '3-5 hours' },
+  { name: 'Browser Compatibility Matrix', level: 'beginner', category: 'work', desc: 'A simple page that tracks which browsers and devices each feature has been tested on, with pass/fail checkboxes and export to CSV.', tags: ['HTML', 'CSS', 'JavaScript'], effort: '4-6 hours' },
+  { name: 'QA Glossary Wiki', level: 'beginner', category: 'work', desc: 'A searchable, filterable glossary of QA terms, acronyms, and team-specific jargon. Great for onboarding new team members.', tags: ['HTML', 'JavaScript', 'JSON'], effort: '3-5 hours' },
+  { name: 'Test Coverage Heatmap', level: 'beginner', category: 'work', desc: 'A color-coded grid showing which features have strong, weak, or no test coverage. Manual input via a form, visual output via HTML table.', tags: ['HTML', 'CSS', 'JavaScript'], effort: '4-6 hours' },
+
+  // BEGINNER — PERSONAL
+  { name: 'Personal Habit Tracker', level: 'beginner', category: 'personal', desc: 'A web page that lets you check off daily habits (exercise, reading, water) and shows a streak calendar.', tags: ['HTML', 'CSS', 'JavaScript'], effort: '4-6 hours' },
+  { name: 'Recipe Organizer', level: 'beginner', category: 'personal', desc: 'A simple app to save, tag, and search your favorite recipes. Start with a local JSON file or spreadsheet.', tags: ['HTML', 'JavaScript', 'JSON'], effort: '5-7 hours' },
+  { name: 'Weekend Planner', level: 'beginner', category: 'personal', desc: 'A form-based tool that asks about weather, mood, and budget, then suggests weekend activity ideas.', tags: ['HTML', 'CSS', 'JavaScript'], effort: '3-5 hours' },
+  { name: 'Book Reading Log', level: 'beginner', category: 'personal', desc: 'Track books you\'ve read with ratings, notes, and a progress bar toward your yearly reading goal.', tags: ['HTML', 'JavaScript', 'LocalStorage'], effort: '4-6 hours' },
+
+  // INTERMEDIATE — WORK
+  { name: 'Flaky Test Dashboard', level: 'intermediate', category: 'work', desc: 'Parse CI/CD test results and build a dashboard showing which tests fail intermittently, how often, and their history.', tags: ['Python', 'Flask', 'Chart.js'], effort: '8-12 hours' },
+  { name: 'API Health Monitor', level: 'intermediate', category: 'work', desc: 'A service that periodically pings key API endpoints, logs response times, and alerts on failures via Slack.', tags: ['Python', 'REST APIs', 'Slack Webhooks'], effort: '8-10 hours' },
+  { name: 'Test Data Generator', level: 'intermediate', category: 'work', desc: 'A CLI tool that generates realistic fake test data (users, orders, addresses) matching our schema constraints.', tags: ['Python', 'Faker', 'CLI'], effort: '6-8 hours' },
+  { name: 'Schema Drift Detector', level: 'intermediate', category: 'work', desc: 'Monitors warehouse tables for unexpected schema changes (new columns, type changes, dropped fields) and alerts the team with a diff report.', tags: ['Python', 'SQL', 'Slack Webhooks'], effort: '8-10 hours' },
+  { name: 'ETL Data Reconciliation Tool', level: 'intermediate', category: 'work', desc: 'Compares aggregated metrics (sums, counts, averages) between source systems and warehouse tables to catch data loss or duplication during ETL.', tags: ['Python', 'Pandas', 'SQL'], effort: '8-12 hours' },
+  { name: 'Test Execution Trend Reporter', level: 'intermediate', category: 'work', desc: 'Pulls test run data from your CI pipeline and generates weekly trend reports — pass rates, new failures, slowest tests, and most-fixed bugs.', tags: ['Python', 'GitHub Actions API', 'Chart.js'], effort: '8-10 hours' },
+  { name: 'Performance Benchmark Suite', level: 'intermediate', category: 'work', desc: 'A lightweight load testing tool that hits key endpoints, records response times over multiple runs, and charts performance trends to catch regressions.', tags: ['Python', 'Locust', 'Flask', 'Chart.js'], effort: '8-12 hours' },
+
+  // INTERMEDIATE — PERSONAL
+  { name: 'Expense Splitter App', level: 'intermediate', category: 'personal', desc: 'A web app for splitting group expenses (trips, dinners). Add people, expenses, and see who owes what.', tags: ['React', 'JavaScript', 'CSS'], effort: '8-12 hours' },
+  { name: 'Workout Planner & Timer', level: 'intermediate', category: 'personal', desc: 'Build custom workout routines with timed intervals, rest periods, and progress tracking over time.', tags: ['React', 'JavaScript', 'Timer APIs'], effort: '8-10 hours' },
+  { name: 'Movie Night Picker', level: 'intermediate', category: 'personal', desc: 'Enter a list of movies with friends, filter by genre/length/streaming service, and spin a random picker wheel.', tags: ['React', 'TMDB API', 'CSS Animations'], effort: '6-8 hours' },
+  { name: 'Personal Finance Dashboard', level: 'intermediate', category: 'personal', desc: 'Upload bank CSV exports and visualize spending patterns by category, month, and trend over time.', tags: ['Python', 'Pandas', 'Plotly'], effort: '10-14 hours' },
+
+  // ADVANCED — WORK
+  { name: 'AI Test Case Generator', level: 'advanced', category: 'work', desc: 'Feed in a feature spec or API doc and use an LLM to auto-generate test cases, edge cases, and test scripts.', tags: ['Python', 'OpenAI API', 'Prompt Engineering'], effort: '12-16 hours' },
+  { name: 'Visual Regression System', level: 'advanced', category: 'work', desc: 'Automated screenshot comparison tool that catches unintended UI changes across releases using perceptual hashing.', tags: ['Puppeteer', 'Node.js', 'Sharp', 'CI/CD'], effort: '14-18 hours' },
+  { name: 'Self-Healing Test Framework', level: 'advanced', category: 'work', desc: 'A Selenium/Playwright wrapper that automatically detects broken selectors and suggests or applies fixes using DOM analysis.', tags: ['Python', 'Selenium', 'ML', 'AST'], effort: '16-20 hours' },
+  { name: 'Data Quality Framework', level: 'advanced', category: 'work', desc: 'A config-driven framework (like Great Expectations or dbt tests) that runs validation rules across warehouse tables — uniqueness, referential integrity, range checks, regex patterns — with historical tracking of pass/fail trends.', tags: ['Python', 'SQL', 'dbt', 'Great Expectations'], effort: '14-18 hours' },
+  { name: 'Cross-System Lineage Validator', level: 'advanced', category: 'work', desc: 'Traces data from source systems through ETL pipelines into the warehouse, validating transformations at each step and visualizing the lineage graph with pass/fail status.', tags: ['Python', 'SQL', 'D3.js', 'Airflow'], effort: '16-20 hours' },
+  { name: 'End-to-End Test Recorder', level: 'advanced', category: 'work', desc: 'A browser extension that records user actions and generates clean Playwright or Cypress test scripts, with smart selectors and built-in assertions.', tags: ['JavaScript', 'Chrome Extension', 'Playwright'], effort: '14-18 hours' },
+
+  // ADVANCED — PERSONAL
+  { name: 'Smart Home Automation Hub', level: 'advanced', category: 'personal', desc: 'Build a dashboard to control smart home devices (lights, thermostat) with scheduling, routines, and a clean UI.', tags: ['React', 'Node.js', 'MQTT', 'REST APIs'], effort: '14-18 hours' },
+  { name: 'AI Trip Planner', level: 'advanced', category: 'personal', desc: 'Enter a destination, dates, and interests, and an LLM builds a day-by-day itinerary with maps and booking links.', tags: ['Python', 'OpenAI API', 'Google Maps API'], effort: '12-16 hours' },
+  { name: 'Multiplayer Quiz Game', level: 'advanced', category: 'personal', desc: 'A real-time trivia game where friends join via code, answer on their phones, and see a live leaderboard.', tags: ['React', 'Node.js', 'WebSockets', 'Redis'], effort: '16-20 hours' },
+  { name: 'Personal Knowledge Base', level: 'advanced', category: 'personal', desc: 'A searchable, tagged notes app with markdown support, backlinks between notes, and full-text search.', tags: ['React', 'SQLite', 'Electron', 'Markdown'], effort: '14-18 hours' },
+];
+
+// ── STATE ──
+const claims = {};
+const roster = [];
+
+// ── RENDER IDEAS ──
+function renderIdeaCard(idea) {
+  const claimed = claims[idea.name];
+  const claimHtml = claimed
+    ? `<span class="claimed-by">&#10003; Claimed by ${claimed}</span> <button class="unclaim-btn" onclick="unclaimIdea('${idea.name.replace(/'/g,"\\'")}')">&#10005;</button>`
+    : `<button class="claim-btn" onclick="claimIdea('${idea.name.replace(/'/g,"\\'")}', this)">&#9997; Claim</button>`;
+  return `
+    <div class="idea-card${claimed ? ' idea-claimed' : ''}" data-level="${idea.level}" data-category="${idea.category}">
+      <div class="idea-header"><h3>${idea.name}</h3></div>
+      <div style="display:flex;gap:.4rem;margin-bottom:.75rem;">
+        <span class="level-badge ${idea.level}">${idea.level}</span>
+        <span class="idea-category ${idea.category}">${idea.category}</span>
+      </div>
+      <p>${idea.desc}</p>
+      <div class="idea-tags">${idea.tags.map(t => `<span class="idea-tag">${t}</span>`).join('')}</div>
+      <div class="idea-effort">&#9203; Estimated: ${idea.effort}</div>
+      <div class="idea-footer">${claimHtml}</div>
+    </div>`;
+}
+
+function renderSection(category, levelFilter) {
+  const gridId = category === 'work' ? 'workGrid' : 'personalGrid';
+  const countId = category === 'work' ? 'workCount' : 'personalCount';
+  const grid = document.getElementById(gridId);
+  const total = appIdeas.filter(i => i.category === category).length;
+  let items = appIdeas.filter(i => i.category === category);
+  if (levelFilter !== 'all') items = items.filter(i => i.level === levelFilter);
+  grid.innerHTML = items.map(renderIdeaCard).join('');
+  const countEl = document.getElementById(countId);
+  if (countEl) {
+    const showing = levelFilter !== 'all' ? `Showing ${items.length} of ${total}` : `${total} projects`;
+    countEl.textContent = showing;
+  }
+}
+
+function filterSection(category, level, btn) {
+  const tabsId = category === 'work' ? 'workTabs' : 'personalTabs';
+  document.querySelectorAll(`#${tabsId} .level-tab`).forEach(b => { b.className = 'level-tab'; });
+  btn.classList.add(level === 'all' ? 'active-all' : `active-${level}`);
+  renderSection(category, level);
+}
+
+function getActiveFilter(tabsId) {
+  const btn = document.querySelector(`#${tabsId} .level-tab[class*="active-"]`);
+  if (!btn) return 'all';
+  return btn.className.includes('active-all') ? 'all' : (btn.className.match(/active-(\w+)/)?.[1] || 'all');
+}
+
+function reRenderAll() {
+  renderSection('work', getActiveFilter('workTabs'));
+  renderSection('personal', getActiveFilter('personalTabs'));
+}
+
+function claimIdea(ideaName, btn) {
+  let trimmed = getCurrentUser();
+  if (!trimmed) {
+    const person = prompt('Enter your name to claim this idea:');
+    if (!person || !person.trim()) return;
+    trimmed = person.trim();
+    localStorage.setItem('qa_hackathon_user', trimmed);
+    renderUserBar();
+  }
+  claims[ideaName] = trimmed;
+  const now = new Date().toLocaleString();
+  dbSave('claim', { idea: ideaName, person: trimmed });
+  // Auto-add to roster
+  const idea = appIdeas.find(i => i.name === ideaName);
+  const level = idea ? idea.level.charAt(0).toUpperCase() + idea.level.slice(1) : '';
+  const existing = roster.find(r => r.name.toLowerCase() === trimmed.toLowerCase());
+  if (existing) {
+    existing.project = ideaName;
+    existing.level = level;
+    existing.date = now;
+  } else {
+    roster.push({ name: trimmed, project: ideaName, level, date: now });
+    dbSave('signup', { name: trimmed, project: ideaName, level, date: now });
+  }
+  renderRoster();
+  reRenderAll();
+  showToast(`"${ideaName}" claimed by ${trimmed}!`);
+}
+
+function unclaimIdea(ideaName) {
+  if (!claims[ideaName]) return;
+  const person = claims[ideaName];
+  if (!confirm(`Remove ${person}'s claim on "${ideaName}"?`)) return;
+  delete claims[ideaName];
+  dbSave('unclaim', { idea: ideaName });
+  // Remove from roster if they have no other claims
+  const hasOtherClaims = Object.values(claims).some(p => p.toLowerCase() === person.toLowerCase());
+  if (!hasOtherClaims) {
+    const idx = roster.findIndex(r => r.name.toLowerCase() === person.toLowerCase());
+    if (idx !== -1) roster.splice(idx, 1);
+    dbSave('removeRoster', { name: person });
+  }
+  renderRoster();
+  reRenderAll();
+  showToast(`"${ideaName}" is now available!`);
+}
+
+// ── BRING YOUR OWN PROJECT ──
+function handleBYOP(e) {
+  e.preventDefault();
+  const name = document.getElementById('byopName').value.trim();
+  const desc = document.getElementById('byopDesc').value.trim();
+  const level = document.getElementById('byopLevel').value;
+  const category = document.getElementById('byopCategory').value;
+  const author = document.getElementById('byopAuthor').value.trim();
+
+  const idea = { name, level, category, desc, tags: ['Custom Project'], effort: 'Self-paced' };
+  appIdeas.push(idea);
+  claims[name] = author;
+  const now = new Date().toLocaleString();
+  dbSave('byop', { name, level, category, desc, author });
+  // Auto-add to roster
+  const rosterLevel = level.charAt(0).toUpperCase() + level.slice(1);
+  const existing = roster.find(r => r.name.toLowerCase() === author.toLowerCase());
+  if (existing) {
+    existing.project = name;
+    existing.level = rosterLevel;
+    existing.date = now;
+  } else {
+    roster.push({ name: author, project: name, level: rosterLevel, date: now });
+    dbSave('signup', { name: author, project: name, level: rosterLevel, date: now });
+  }
+  renderRoster();
+  reRenderAll();
+  e.target.reset();
+  document.getElementById('byopCount').textContent = '0';
+  showToast(`"${name}" added and claimed by ${author}!`);
+  document.getElementById(category === 'work' ? 'ideas' : 'personal-ideas').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── SIGN-UP ROSTER ──
+function renderRoster() {
+  const grid = document.getElementById('rosterGrid');
+  const countEl = document.getElementById('rosterCount');
+  if (roster.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem 0;">No sign-ups yet. Claim a project to get started!</p>';
+    countEl.innerHTML = '';
+    return;
+  }
+  countEl.innerHTML = `<div class="roster-summary">
+    <span class="roster-stat"><strong>${roster.length}</strong> participant${roster.length !== 1 ? 's' : ''}</span>
+  </div>`;
+  grid.innerHTML = `<table class="roster-table">
+    <thead><tr>
+      <th class="roster-num">#</th>
+      <th>QA Name</th>
+      <th>Project</th>
+      <th>Skill Level</th>
+      <th>Sign-Up Date</th>
+    </tr></thead>
+    <tbody>${roster.map((r, i) => {
+      const levelColor = r.level ? `color:var(--${r.level.toLowerCase()});font-weight:600;` : '';
+      return `<tr>
+        <td class="roster-num">${i + 1}</td>
+        <td><strong>${r.name}</strong></td>
+        <td class="roster-project" title="${(r.project || '—').replace(/"/g, '&quot;')}">${r.project || '—'}</td>
+        <td style="${levelColor}">${r.level || '—'}</td>
+        <td class="roster-date">${r.date || '—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+// ── UTILITIES ──
+function updateCharCount(el, id) { document.getElementById(id).textContent = el.value.length; }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── INIT ──
+async function init() {
+  // Load persisted data from Google Sheets backend
+  const data = await dbLoad();
+  if (data) {
+    if (data.claims) Object.assign(claims, data.claims);
+    if (data.roster) roster.push(...data.roster);
+    if (data.byopIdeas) data.byopIdeas.forEach(idea => {
+      appIdeas.push({ name: idea.name, level: idea.level, category: idea.category, desc: idea.desc, tags: ['Custom Project'], effort: 'Self-paced' });
+      if (idea.author) claims[idea.name] = idea.author;
+    });
+  }
+  renderSection('work', 'all');
+  renderSection('personal', 'all');
+  renderRoster();
+  // Pre-fill BYOP author with saved name
+  const savedUser = getCurrentUser();
+  if (savedUser) {
+    const byopEl = document.getElementById('byopAuthor');
+    if (byopEl) byopEl.value = savedUser;
+  }
+}
+init();
+
+// ── SCROLL ANIMATIONS ──
+const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }); }, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+// ── MOBILE NAV ──
+document.querySelectorAll('nav ul a').forEach(a => { a.addEventListener('click', () => document.querySelector('nav ul').classList.remove('open')); });
+</script>
+</body>
+</html>
