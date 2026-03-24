@@ -90,9 +90,15 @@
   /* ── EDITABLE TABLE ── */
   .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card); }
   table { width: 100%; border-collapse: collapse; min-width: 900px; }
-  thead th { background: var(--primary); color: #fff; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; padding: .75rem 1rem; text-align: left; white-space: nowrap; position: sticky; top: 0; }
-  thead th:first-child { border-radius: 0; }
-  thead th:last-child { border-radius: 0; }
+  thead th { background: var(--primary); color: #fff; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; padding: .75rem 1rem; text-align: left; white-space: nowrap; position: sticky; top: 0; cursor: pointer; user-select: none; position: relative; }
+  thead th:hover { background: var(--primary-dark); }
+  thead th .sort-icon { opacity: .5; margin-left: .3rem; font-size: .7rem; }
+  thead th.sorted-asc .sort-icon, thead th.sorted-desc .sort-icon { opacity: 1; }
+  thead th:first-child, thead th:last-child { cursor: default; }
+  thead th:first-child:hover, thead th:last-child:hover { background: var(--primary); }
+  /* Column resize handle */
+  .col-resize { position: absolute; right: 0; top: 0; bottom: 0; width: 5px; cursor: col-resize; z-index: 2; }
+  .col-resize:hover, .col-resize.active { background: rgba(255,255,255,.3); }
   tbody tr { transition: background .15s; }
   tbody tr:hover { background: var(--row-hover); }
   tbody td { padding: 0; border-bottom: 1px solid var(--border); vertical-align: top; }
@@ -150,9 +156,11 @@
   .btn-icon.delete:hover { border-color: #e55; color: #c33; background: #fee; }
 
   /* Add row button */
-  .add-row-bar { padding: .75rem 1rem; border-top: 1px solid var(--border); }
+  .add-row-bar { padding: .75rem 1rem; border-top: 1px solid var(--border); display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
   .btn-add { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.25rem; border-radius: 8px; border: 1px dashed var(--border); background: transparent; color: var(--text-muted); font-size: .88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
   .btn-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(108,60,225,.04); }
+  .btn-export { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.25rem; border-radius: 8px; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: .88rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
+  .btn-export:hover { background: var(--accent); color: #fff; }
 
   /* ── USER BAR ── */
   .user-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 150; background: var(--nav-bg); backdrop-filter: blur(16px); border-top: 1px solid var(--border); padding: .6rem 2rem; display: flex; align-items: center; justify-content: center; gap: .75rem; }
@@ -208,8 +216,8 @@
 <section id="board">
   <div class="container fade-in">
     <div class="table-header">
-      <h2>AI &amp; Automation Ideas</h2>
-      <span class="idea-count" id="ideaCount"></span>
+      <div><h2>AI &amp; Automation Ideas</h2><span class="idea-count" id="ideaCount"></span></div>
+      <button class="btn-export" onclick="exportToExcel()">&#128229; Export to Excel</button>
     </div>
 
     <div class="table-wrap">
@@ -217,13 +225,13 @@
         <thead>
           <tr>
             <th class="col-num">#</th>
-            <th class="col-name">Your Name</th>
-            <th class="col-title">Idea Title</th>
-            <th class="col-desc">Description</th>
-            <th class="col-process">Current Manual Process</th>
-            <th class="col-category">Category</th>
-            <th class="col-effort">Effort</th>
-            <th class="col-impact">Impact</th>
+            <th class="col-name" data-sort="name" onclick="sortBy('name',this)">Your Name<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
+            <th class="col-title" data-sort="title" onclick="sortBy('title',this)">Idea Title<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
+            <th class="col-desc" data-sort="desc" onclick="sortBy('desc',this)">Description<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
+            <th class="col-process" data-sort="process" onclick="sortBy('process',this)">Current Manual Process<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
+            <th class="col-category" data-sort="category" onclick="sortBy('category',this)">Category<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
+            <th class="col-effort" data-sort="effort" onclick="sortBy('effort',this)">Effort<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
+            <th class="col-impact" data-sort="impact" onclick="sortBy('impact',this)">Impact<span class="sort-icon">&#8597;</span><div class="col-resize" onmousedown="startResize(event)"></div></th>
             <th class="col-actions"></th>
           </tr>
         </thead>
@@ -391,6 +399,8 @@ function render() {
   document.getElementById('ideaCount').innerHTML = rows.length
     ? `<strong>${rows.length}</strong> idea${rows.length !== 1 ? 's' : ''} submitted`
     : '';
+  // Resize all textareas to fit their content
+  requestAnimationFrame(autoGrowAll);
 }
 
 function esc(str) {
@@ -451,12 +461,117 @@ function deleteRow(id) {
   showToast('Idea removed');
 }
 
-// ── AUTO-GROW TEXTAREAS ──
-document.addEventListener('input', function(e) {
-  if (e.target.tagName === 'TEXTAREA') {
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
+// ── SORTING ──
+let currentSort = { field: null, asc: true };
+
+function sortBy(field, thEl) {
+  // Don't sort if clicking the resize handle
+  if (event && event.target.classList.contains('col-resize')) return;
+  // Toggle direction
+  if (currentSort.field === field) {
+    currentSort.asc = !currentSort.asc;
+  } else {
+    currentSort.field = field;
+    currentSort.asc = true;
   }
+  // Update header classes
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+  });
+  thEl.classList.add(currentSort.asc ? 'sorted-asc' : 'sorted-desc');
+  // Sort rows
+  rows.sort((a, b) => {
+    const va = (a[field] || '').toString().toLowerCase();
+    const vb = (b[field] || '').toString().toLowerCase();
+    if (va < vb) return currentSort.asc ? -1 : 1;
+    if (va > vb) return currentSort.asc ? 1 : -1;
+    return 0;
+  });
+  render();
+}
+
+// ── COLUMN RESIZING ──
+let resizeState = null;
+
+function startResize(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const th = e.target.parentElement;
+  const startX = e.clientX;
+  const startW = th.offsetWidth;
+  e.target.classList.add('active');
+  resizeState = { th, startX, startW, handle: e.target };
+
+  function onMove(ev) {
+    const diff = ev.clientX - startX;
+    const newW = Math.max(60, startW + diff);
+    resizeState.th.style.width = newW + 'px';
+    resizeState.th.style.minWidth = newW + 'px';
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if (resizeState) resizeState.handle.classList.remove('active');
+    resizeState = null;
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ── EXPORT TO EXCEL ──
+function exportToExcel() {
+  if (rows.length === 0) { showToast('No ideas to export'); return; }
+
+  // Build CSV content
+  const headers = ['#', 'Name', 'Idea Title', 'Description', 'Current Manual Process', 'Category', 'Effort', 'Impact'];
+  const csvRows = [headers.join(',')];
+
+  rows.forEach((r, i) => {
+    const fields = [
+      i + 1,
+      csvEscape(r.name),
+      csvEscape(r.title),
+      csvEscape(r.desc),
+      csvEscape(r.process),
+      csvEscape(r.category),
+      csvEscape(r.effort),
+      csvEscape(r.impact)
+    ];
+    csvRows.push(fields.join(','));
+  });
+
+  const csvContent = '\uFEFF' + csvRows.join('\r\n'); // BOM for Excel UTF-8
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'AI_Ideas_Board_' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Exported to CSV!');
+}
+
+function csvEscape(str) {
+  if (!str) return '';
+  str = str.toString();
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+// ── AUTO-GROW TEXTAREAS ──
+function autoGrow(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+function autoGrowAll() {
+  document.querySelectorAll('tbody textarea').forEach(autoGrow);
+}
+document.addEventListener('input', function(e) {
+  if (e.target.tagName === 'TEXTAREA') autoGrow(e.target);
 });
 
 // ── FORMATTING TOOLBAR ──
