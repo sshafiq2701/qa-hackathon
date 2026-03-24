@@ -132,7 +132,7 @@
   .claim-btn.claimed { background: var(--accent); border-color: var(--accent); color: #fff; cursor: default; }
   .claim-btn.claimed:hover { background: var(--accent); }
   .claimed-by { font-size: .78rem; color: var(--accent); font-weight: 600; display: inline-flex; align-items: center; gap: .3rem; }
-  .unclaim-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: .75rem; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all .2s; padding: 0; line-height: 1; font-family: inherit; }
+  .unclaim-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); font-size: .7rem; border-radius: 1rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all .2s; padding: .25rem .65rem; line-height: 1; font-family: inherit; font-weight: 500; letter-spacing: .02em; }
   .unclaim-btn:hover { background: #fee; border-color: #e55; color: #c33; }
 
   /* ── RULES ── */
@@ -368,20 +368,40 @@
 // CONFIGURATION — Paste your Google Apps Script URL here
 // See SETUP-GUIDE.md for instructions
 // ══════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbwFVVcYfd00JaRl8dRpoJCQNx0ae6-fvQ5M24RdY8b_Qp0FOkrpwRFzDuBDvzlplU4a/exec'; // <-- paste your deployed Apps Script URL
+const API_URL = ''; // <-- paste your deployed Apps Script URL
 
 // ── USER NAME (remember-me) ──
-function getCurrentUser() { return localStorage.getItem('qa_hackathon_user') || ''; }
+// Uses localStorage with cookie fallback for file:// and sandboxed environments
+let _memoryUser = '';
+function _setCookie(v) { try { document.cookie = 'qa_hackathon_user=' + encodeURIComponent(v) + ';path=/;max-age=31536000;SameSite=Lax'; } catch(e){} }
+function _getCookie() { try { const m = document.cookie.match(/(?:^|;\s*)qa_hackathon_user=([^;]*)/); return m ? decodeURIComponent(m[1]) : ''; } catch(e){ return ''; } }
+function _clearCookie() { try { document.cookie = 'qa_hackathon_user=;path=/;max-age=0'; } catch(e){} }
+
+function getCurrentUser() {
+  try { const v = localStorage.getItem('qa_hackathon_user'); if (v) return v; } catch(e){}
+  const c = _getCookie(); if (c) return c;
+  return _memoryUser || '';
+}
+function _saveUser(name) {
+  _memoryUser = name;
+  try { localStorage.setItem('qa_hackathon_user', name); } catch(e){}
+  _setCookie(name);
+}
+function _removeUser() {
+  _memoryUser = '';
+  try { localStorage.removeItem('qa_hackathon_user'); } catch(e){}
+  _clearCookie();
+}
 function setUserName() {
   const input = document.getElementById('userNameInput');
   const name = input.value.trim();
   if (!name) return;
-  localStorage.setItem('qa_hackathon_user', name);
+  _saveUser(name);
   renderUserBar();
   showToast(`Welcome, ${name}!`);
 }
 function changeName() {
-  localStorage.removeItem('qa_hackathon_user');
+  _removeUser();
   renderUserBar();
   document.getElementById('userNameInput').focus();
 }
@@ -488,7 +508,7 @@ const roster = [];
 function renderIdeaCard(idea) {
   const claimed = claims[idea.name];
   const claimHtml = claimed
-    ? `<span class="claimed-by">&#10003; Claimed by ${claimed}</span> <button class="unclaim-btn" onclick="unclaimIdea('${idea.name.replace(/'/g,"\\'")}')">&#10005;</button>`
+    ? `<span class="claimed-by">&#10003; Claimed by ${claimed}</span> <button class="unclaim-btn" onclick="unclaimIdea('${idea.name.replace(/'/g,"\\'")}')">Unclaim</button>`
     : `<button class="claim-btn" onclick="claimIdea('${idea.name.replace(/'/g,"\\'")}', this)">&#9997; Claim</button>`;
   return `
     <div class="idea-card${claimed ? ' idea-claimed' : ''}" data-level="${idea.level}" data-category="${idea.category}">
@@ -543,7 +563,7 @@ function claimIdea(ideaName, btn) {
     const person = prompt('Enter your name to claim this idea:');
     if (!person || !person.trim()) return;
     trimmed = person.trim();
-    localStorage.setItem('qa_hackathon_user', trimmed);
+    _saveUser(trimmed);
     renderUserBar();
   }
   claims[ideaName] = trimmed;
