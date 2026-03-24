@@ -29,16 +29,16 @@
     --primary-light: #8B5CF6;
     --accent: #06D6A0;
     --accent-dark: #05B384;
-    --bg: #0F0A1A;
-    --bg-card: #1A1128;
-    --text: #E8E0F5;
-    --text-muted: #9B8FBB;
-    --border: #2D1F4E;
-    --nav-bg: rgba(15,10,26,.85);
-    --nav-bg-mobile: rgba(15,10,26,.97);
-    --hero-grad1: rgba(108,60,225,.25);
-    --hero-grad2: rgba(6,214,160,.1);
-    --grid-stroke: %232D1F4E;
+    --bg: #111111;
+    --bg-card: #1A1A1A;
+    --text: #E5E5E5;
+    --text-muted: #999999;
+    --border: #2E2E2E;
+    --nav-bg: rgba(17,17,17,.9);
+    --nav-bg-mobile: rgba(17,17,17,.97);
+    --hero-grad1: rgba(108,60,225,.2);
+    --hero-grad2: rgba(6,214,160,.08);
+    --grid-stroke: %232E2E2E;
     --grid-opacity: .3;
     --row-hover: #231740;
     --input-bg: #1A1128;
@@ -71,19 +71,19 @@
   [data-theme="dark"] .theme-toggle .icon-moon { display: inline; }
 
   /* ── HERO ── */
-  .hero { min-height: 38vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem 2.5rem; background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--hero-grad1), transparent), radial-gradient(ellipse 40% 40% at 80% 80%, var(--hero-grad2), transparent), var(--bg); position: relative; overflow: hidden; }
+  .hero { min-height: 20vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 4.5rem 2rem 1.5rem; background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--hero-grad1), transparent), radial-gradient(ellipse 40% 40% at 80% 80%, var(--hero-grad2), transparent), var(--bg); position: relative; overflow: hidden; }
   .hero-grid { position: absolute; inset: 0; opacity: var(--grid-opacity); pointer-events: none; }
   .hero-content { position: relative; max-width: 800px; }
-  .badge { display: inline-block; padding: .6rem 1.5rem; border-radius: 999px; background: rgba(108,60,225,.2); border: 1px solid var(--primary); font-size: 1.05rem; font-weight: 600; color: var(--primary-light); margin-bottom: 1.5rem; letter-spacing: 1px; }
-  .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.25rem; }
+  .badge { display: inline-block; padding: .35rem 1rem; border-radius: 999px; background: rgba(108,60,225,.2); border: 1px solid var(--primary); font-size: .8rem; font-weight: 600; color: var(--primary-light); margin-bottom: .75rem; letter-spacing: 1px; }
+  .hero h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; line-height: 1.15; margin-bottom: .75rem; }
   .hero h1 .highlight { background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 620px; margin: 0 auto; }
+  .hero p { font-size: .9rem; color: var(--text-muted); max-width: 620px; margin: 0 auto; }
 
   /* ── TABLE SECTION ── */
-  section { padding: 3rem 2rem 5rem; }
+  section { padding: 2rem 2rem 3rem; }
   .container { max-width: 1200px; margin: 0 auto; }
   .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
-  .table-header h2 { font-size: 1.5rem; font-weight: 800; }
+  .table-header h2 { font-size: 1.25rem; font-weight: 800; }
   .idea-count { font-size: .9rem; color: var(--text-muted); }
   .idea-count strong { color: var(--primary); }
 
@@ -162,8 +162,8 @@
   footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--text-muted); font-size: .85rem; }
 
   /* ── TOAST ── */
-  .toast { position: fixed; bottom: 3.5rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--primary-dark); color: #fff; padding: .85rem 2rem; border-radius: 12px; font-weight: 600; z-index: 1000; transition: transform .4s; pointer-events: none; font-size: .9rem; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast { position: fixed; bottom: 3.5rem; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none; background: var(--primary-dark); color: #fff; padding: .85rem 2rem; border-radius: 12px; font-weight: 600; z-index: 1000; transition: opacity .35s ease, transform .4s; font-size: .9rem; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
 
   /* ── SCROLL ANIMATION ── */
   .fade-in { opacity: 0; transform: translateY(30px); transition: opacity .6s, transform .6s; }
@@ -179,7 +179,7 @@
     <button class="nav-toggle" onclick="document.querySelector('nav ul').classList.toggle('open')">&#9776;</button>
     <ul>
       <li><a href="#board">Ideas Board</a></li>
-      <li><a href="index.html">Hackathon Site</a></li>
+      <li><a href="qa-hackathon.html">Hackathon Site</a></li>
       <li><button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode"><span class="icon-sun">&#9788;</span><span class="icon-moon">&#9790;</span></button></li>
     </ul>
   </div>
@@ -248,20 +248,40 @@
 
 <script>
 // ── CONFIG ──
-const API_URL = 'https://script.google.com/macros/s/AKfycbwFVVcYfd00JaRl8dRpoJCQNx0ae6-fvQ5M24RdY8b_Qp0FOkrpwRFzDuBDvzlplU4a/exec'; // <-- paste your deployed Apps Script URL (same one as the hackathon site)
+const API_URL = ''; // <-- paste your deployed Apps Script URL (same one as the hackathon site)
 
 // ── USER NAME (remember-me, shared with hackathon site) ──
-function getCurrentUser() { return localStorage.getItem('qa_hackathon_user') || ''; }
+// Uses localStorage with cookie fallback for file:// and sandboxed environments
+let _memoryUser = '';
+function _setCookie(v) { try { document.cookie = 'qa_hackathon_user=' + encodeURIComponent(v) + ';path=/;max-age=31536000;SameSite=Lax'; } catch(e){} }
+function _getCookie() { try { const m = document.cookie.match(/(?:^|;\s*)qa_hackathon_user=([^;]*)/); return m ? decodeURIComponent(m[1]) : ''; } catch(e){ return ''; } }
+function _clearCookie() { try { document.cookie = 'qa_hackathon_user=;path=/;max-age=0'; } catch(e){} }
+
+function getCurrentUser() {
+  try { const v = localStorage.getItem('qa_hackathon_user'); if (v) return v; } catch(e){}
+  const c = _getCookie(); if (c) return c;
+  return _memoryUser || '';
+}
+function _saveUser(name) {
+  _memoryUser = name;
+  try { localStorage.setItem('qa_hackathon_user', name); } catch(e){}
+  _setCookie(name);
+}
+function _removeUser() {
+  _memoryUser = '';
+  try { localStorage.removeItem('qa_hackathon_user'); } catch(e){}
+  _clearCookie();
+}
 function setUserName() {
   const input = document.getElementById('userNameInput');
   const name = input.value.trim();
   if (!name) return;
-  localStorage.setItem('qa_hackathon_user', name);
+  _saveUser(name);
   renderUserBar();
   showToast(`Welcome, ${name}!`);
 }
 function changeName() {
-  localStorage.removeItem('qa_hackathon_user');
+  _removeUser();
   renderUserBar();
   document.getElementById('userNameInput').focus();
 }
