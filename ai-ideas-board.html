@@ -692,6 +692,9 @@ function showToast(msg) {
 }
 
 // ── INIT ──
+// Render empty table immediately
+render();
+// Then load backend data
 async function init() {
   const data = await dbLoad();
   if (data && data.aiIdeas) {
@@ -707,8 +710,8 @@ async function init() {
         impact: idea.impact || '',
       });
     });
+    render();
   }
-  render();
 }
 init();
 
