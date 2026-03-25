@@ -632,11 +632,20 @@ function unclaimIdea(ideaName) {
   if (!confirm(`Remove ${person}'s claim on "${ideaName}"?`)) return;
   delete claims[ideaName];
   dbSave('unclaim', { idea: ideaName });
-  // Remove from roster if they have no other claims
-  const hasOtherClaims = Object.values(claims).some(p => p.toLowerCase() === person.toLowerCase());
-  if (!hasOtherClaims) {
-    const idx = roster.findIndex(r => r.name.toLowerCase() === person.toLowerCase());
-    if (idx !== -1) roster.splice(idx, 1);
+  // Check if person still has other claims
+  const remainingClaim = Object.entries(claims).find(([k, v]) => v.toLowerCase() === person.toLowerCase());
+  const rosterIdx = roster.findIndex(r => r.name.toLowerCase() === person.toLowerCase());
+  if (remainingClaim) {
+    // Update roster to show their other project
+    if (rosterIdx !== -1) {
+      const idea = appIdeas.find(i => i.name === remainingClaim[0]);
+      roster[rosterIdx].project = remainingClaim[0];
+      roster[rosterIdx].level = idea ? idea.level.charAt(0).toUpperCase() + idea.level.slice(1) : roster[rosterIdx].level;
+      dbSave('signup', { name: person, project: remainingClaim[0], level: roster[rosterIdx].level, date: roster[rosterIdx].date });
+    }
+  } else {
+    // No more claims — remove from roster entirely
+    if (rosterIdx !== -1) roster.splice(rosterIdx, 1);
     dbSave('removeRoster', { name: person });
   }
   renderRoster();
