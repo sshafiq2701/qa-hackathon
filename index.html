@@ -735,8 +735,18 @@ function showToast(msg) {
 }
 
 // ── INIT ──
+// Render cards immediately with static data
+renderSection('work', 'all');
+renderSection('personal', 'all');
+renderRoster();
+// Pre-fill BYOP author
+const savedUser = getCurrentUser();
+if (savedUser) {
+  const byopEl = document.getElementById('byopAuthor');
+  if (byopEl) byopEl.value = savedUser;
+}
+// Then load backend data and re-render with claims/roster
 async function init() {
-  // Load persisted data from Google Sheets backend
   const data = await dbLoad();
   if (data) {
     if (data.claims) Object.assign(claims, data.claims);
@@ -746,15 +756,8 @@ async function init() {
       if (idea.author) claims[idea.name] = idea.author;
     });
   }
-  renderSection('work', 'all');
-  renderSection('personal', 'all');
+  reRenderAll();
   renderRoster();
-  // Pre-fill BYOP author with saved name
-  const savedUser = getCurrentUser();
-  if (savedUser) {
-    const byopEl = document.getElementById('byopAuthor');
-    if (byopEl) byopEl.value = savedUser;
-  }
 }
 init();
 
